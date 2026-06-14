@@ -1,0 +1,94 @@
+open xca in linux 
+sudo apt install xca
+file => new DB => create DB
+in Private Keys =>create 3 New key
+	1. Name: root = create
+	2. name bob  
+
+in certificates create 3 certficates
+1. 
+source template=  CA => apply ext
+subject = name= ca
+	fill all other details
+key usage :- 
+	1. 
+	Digital sign
+	key encipher
+	2.
+	TLS web server auth
+
+2. 
+use this certificate for signing = ca
+source template=  TLS-server => apply ext
+subject = name= bob.example.com
+	fill all other details
+private key :- bob
+
+extension
+type:- end entity
+X509v3 Subject Alternative Name: DNS:bob.example.com
+time = 1 year
+key usage :- 
+	1. 
+	Digital sign
+	key encipher
+	2.
+	TLS web server auth
+=======================================================================
+EXPORT cert
+root and subca in pem(.crt)
+bob in pem chain(.crt)
+
+
+export private keys
+root:- PEm private(.pem)
+bob;- PEm private(.pem)
+
+exit from XCA
+
+===============================================================
+
+create appache server
+sudo ufw allow "Apache"
+sudo a2enmod ssl
+sudo vim /etc/apache2/sites-available/bob.conf
+
+	ditiss17@ditiss17-VMware-2: ~/ashu
+
+<VirtualHost *: 443>
+ServerName bob. example.com
+DocumentRoot /var/www/html
+SSLEngine on
+SSLCertificateFile /home/ditiss17/ashu/bob.example.com.crt
+SSLCertificateKeyFile /home/ditiss17/ashu/bob.pem
+SSLCACertificateFile /home/ditiss17/ashu/ca.crt
+</VirtualHost>
+:wq
+
+sudo vim /etc/apache2/apache2.conf
+ in last line add
+ServerName bob.example.com
+:wq
+
+cd
+
+
+sudo mkdir -p /var/www/bob
+sudo chown -R www-data:www-data /var/www/bob
+sudo vim /etc/hosts
+	at last add
+127.0.0.1 bob.example.com
+
+:wq
+
+sudo a2ensite bob.conf
+sudo systemctl restart apache2
+
+
+
+in browser bob.example.com
+
+in setting= > search certificate and in that  import bob.example.com.crt 
+
+
+
